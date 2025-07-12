@@ -66,8 +66,12 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> 
                 auth.requestMatchers("/api/auth/**").permitAll()
                     .requestMatchers("/h2-console/**").permitAll()
-                    .requestMatchers("/api/posts/**").permitAll()
-                    .requestMatchers("/api/comments/**").permitAll()
+                    .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/posts", "/api/posts/*").permitAll()
+                    .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/posts").authenticated()
+                    .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/posts/*").authenticated()
+                    .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/posts/*").authenticated()
+                    .requestMatchers("/api/comments/post/**").permitAll()
+                    .requestMatchers("/api/comments/**").authenticated()
                     .requestMatchers("/api/files/**").permitAll()
                     .anyRequest().authenticated()
             );

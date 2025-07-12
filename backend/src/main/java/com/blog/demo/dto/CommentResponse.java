@@ -9,6 +9,7 @@ public class CommentResponse {
     private String content;
     private LocalDateTime createdDate;
     private LocalDateTime modifiedDate;
+    private UserResponse userResponse;
     
     public CommentResponse(Comment comment) {
         this.id = comment.getId();
@@ -16,6 +17,7 @@ public class CommentResponse {
         this.content = comment.getContent();
         this.createdDate = comment.getCreatedDate();
         this.modifiedDate = comment.getModifiedDate();
+        this.userResponse = comment.getUser() != null ? new UserResponse(comment.getUser()) : null;
     }
     
     public Long getId() {
@@ -56,5 +58,13 @@ public class CommentResponse {
     
     public void setModifiedDate(LocalDateTime modifiedDate) {
         this.modifiedDate = modifiedDate;
+    }
+    
+    public UserResponse getUserResponse() {
+        return userResponse;
+    }
+    
+    public void setUserResponse(UserResponse userResponse) {
+        this.userResponse = userResponse;
     }
 }

@@ -11,6 +11,7 @@ public class PostResponse {
     private String content;
     private LocalDateTime createdDate;
     private LocalDateTime modifiedDate;
+    private UserResponse userResponse;
     private List<FileAttachmentResponse> fileAttachments;
     
     public PostResponse(Post post) {
@@ -19,6 +20,7 @@ public class PostResponse {
         this.content = post.getContent();
         this.createdDate = post.getCreatedDate();
         this.modifiedDate = post.getModifiedDate();
+        this.userResponse = post.getUser() != null ? new UserResponse(post.getUser()) : null;
         this.fileAttachments = post.getFileAttachments() != null ? 
             post.getFileAttachments().stream()
                 .map(FileAttachmentResponse::new)
@@ -63,6 +65,14 @@ public class PostResponse {
     
     public void setModifiedDate(LocalDateTime modifiedDate) {
         this.modifiedDate = modifiedDate;
+    }
+    
+    public UserResponse getUserResponse() {
+        return userResponse;
+    }
+    
+    public void setUserResponse(UserResponse userResponse) {
+        this.userResponse = userResponse;
     }
     
     public List<FileAttachmentResponse> getFileAttachments() {
