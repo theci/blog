@@ -18,39 +18,31 @@ export const authStore = reactive({
   },
 
   async login(credentials) {
-    try {
-      const response = await authService.login(credentials)
-      const { token, user } = response.data
-      
-      this.token = token
-      this.user = user
-      this.isAuthenticated = true
-      
-      localStorage.setItem('token', token)
-      localStorage.setItem('user', JSON.stringify(user))
-      
-      return response.data
-    } catch (error) {
-      throw error
-    }
+    const response = await authService.login(credentials)
+    const { token, user } = response.data
+    
+    this.token = token
+    this.user = user
+    this.isAuthenticated = true
+    
+    localStorage.setItem('token', token)
+    localStorage.setItem('user', JSON.stringify(user))
+    
+    return response.data
   },
 
   async register(userData) {
-    try {
-      const response = await authService.register(userData)
-      const { token, user } = response.data
-      
-      this.token = token
-      this.user = user
-      this.isAuthenticated = true
-      
-      localStorage.setItem('token', token)
-      localStorage.setItem('user', JSON.stringify(user))
-      
-      return response.data
-    } catch (error) {
-      throw error
-    }
+    const response = await authService.register(userData)
+    const { token, user } = response.data
+    
+    this.token = token
+    this.user = user
+    this.isAuthenticated = true
+    
+    localStorage.setItem('token', token)
+    localStorage.setItem('user', JSON.stringify(user))
+    
+    return response.data
   },
 
   async logout() {

@@ -43,7 +43,7 @@ import { useRouter } from 'vue-router'
 import { authStore } from '../store/auth'
 
 export default {
-  name: 'Login',
+  name: 'LoginPage',
   setup() {
     const router = useRouter()
     const credentials = ref({
