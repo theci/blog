@@ -37,8 +37,12 @@ public class CommentService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         
+        if (username == null || "anonymousUser".equals(username)) {
+            throw new RuntimeException("User must be authenticated to create comments");
+        }
+        
         User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new RuntimeException("User not found: " + username));
         
         Post post = postService.getPostEntityById(postId);
         
@@ -56,6 +60,10 @@ public class CommentService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         
+        if (username == null || "anonymousUser".equals(username)) {
+            throw new RuntimeException("User must be authenticated to update comments");
+        }
+        
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("Comment not found with id: " + commentId));
         
@@ -72,6 +80,10 @@ public class CommentService {
     public void deleteComment(Long commentId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
+        
+        if (username == null || "anonymousUser".equals(username)) {
+            throw new RuntimeException("User must be authenticated to delete comments");
+        }
         
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("Comment not found with id: " + commentId));
