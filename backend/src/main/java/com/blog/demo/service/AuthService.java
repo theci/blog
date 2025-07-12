@@ -74,4 +74,10 @@ public class AuthService {
         
         return new UserResponse(user);
     }
+    
+    public java.util.List<UserResponse> getAllUsers() {
+        return userRepository.findAll().stream()
+            .map(UserResponse::new)
+            .collect(java.util.stream.Collectors.toList());
+    }
 }
