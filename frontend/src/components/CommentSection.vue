@@ -4,17 +4,8 @@
       <h3>Comments ({{ comments.length }})</h3>
     </div>
     
-    <div class="comment-form">
+    <div v-if="isAuthenticated" class="comment-form">
       <form @submit.prevent="submitComment">
-        <div class="form-row">
-          <input
-            v-model="newComment.author"
-            type="text"
-            placeholder="Your name"
-            class="author-input"
-            required
-          />
-        </div>
         <div class="form-row">
           <textarea
             v-model="newComment.content"
@@ -30,6 +21,10 @@
           </button>
         </div>
       </form>
+    </div>
+    
+    <div v-else class="login-prompt">
+      <p>Please <router-link to="/login">login</router-link> to post a comment.</p>
     </div>
     
     <div class="comments-list">
@@ -57,7 +52,7 @@
             {{ comment.content }}
           </div>
           
-          <div class="comment-actions">
+          <div v-if="canEditComment(comment)" class="comment-actions">
             <button 
               @click="startEdit(comment)" 
               class="edit-btn"
@@ -76,15 +71,6 @@
           
           <div v-if="editingComment && editingComment.id === comment.id" class="edit-form">
             <form @submit.prevent="updateComment">
-              <div class="form-row">
-                <input
-                  v-model="editingComment.author"
-                  type="text"
-                  placeholder="Your name"
-                  class="author-input"
-                  required
-                />
-              </div>
               <div class="form-row">
                 <textarea
                   v-model="editingComment.content"
@@ -109,6 +95,9 @@
 </template>
 
 <script>
+import { commentService } from '../services/api'
+import { authStore } from '../store/auth'
+
 export default {
   name: 'CommentSection',
   props: {
@@ -125,10 +114,14 @@ export default {
       submitting: false,
       updating: false,
       newComment: {
-        author: '',
         content: ''
       },
       editingComment: null
+    }
+  },
+  computed: {
+    isAuthenticated() {
+      return authStore.isAuthenticated
     }
   },
   async mounted() {
@@ -138,7 +131,7 @@ export default {
     async fetchComments() {
       try {
         this.loading = true
-        const response = await this.$commentService.getCommentsByPostId(this.postId)
+        const response = await commentService.getCommentsByPostId(this.postId)
         this.comments = response.data
         this.$emit('comments-updated', this.comments.length)
       } catch (error) {
@@ -148,20 +141,25 @@ export default {
       }
     },
     
+    canEditComment(comment) {
+      return authStore.isAuthenticated && 
+             comment.userResponse && 
+             authStore.user && 
+             comment.userResponse.username === authStore.user.username
+    },
+    
     async submitComment() {
-      if (!this.newComment.author.trim() || !this.newComment.content.trim()) {
-        alert('Please fill in both name and comment.')
+      if (!this.newComment.content.trim()) {
+        alert('Please write a comment.')
         return
       }
       
       try {
         this.submitting = true
-        await this.$commentService.createComment(this.postId, {
-          author: this.newComment.author.trim(),
+        await commentService.createComment(this.postId, {
           content: this.newComment.content.trim()
         })
         
-        this.newComment.author = ''
         this.newComment.content = ''
         await this.fetchComments()
       } catch (error) {
@@ -175,7 +173,6 @@ export default {
     startEdit(comment) {
       this.editingComment = {
         id: comment.id,
-        author: comment.author,
         content: comment.content
       }
     },
@@ -185,15 +182,14 @@ export default {
     },
     
     async updateComment() {
-      if (!this.editingComment.author.trim() || !this.editingComment.content.trim()) {
-        alert('Please fill in both name and comment.')
+      if (!this.editingComment.content.trim()) {
+        alert('Please write a comment.')
         return
       }
       
       try {
         this.updating = true
-        await this.$commentService.updateComment(this.editingComment.id, {
-          author: this.editingComment.author.trim(),
+        await commentService.updateComment(this.editingComment.id, {
           content: this.editingComment.content.trim()
         })
         
@@ -208,12 +204,12 @@ export default {
     },
     
     async deleteComment(commentId) {
-      if (!confirm('Are you sure you want to delete this comment?')) {
+      if (!confirm('정말로 이 댓글을 삭제하시겠습니까?')) {
         return
       }
       
       try {
-        await this.$commentService.deleteComment(commentId)
+        await commentService.deleteComment(commentId)
         await this.fetchComments()
       } catch (error) {
         console.error('Error deleting comment:', error)
@@ -419,5 +415,27 @@ export default {
   margin-top: 15px;
   padding-top: 15px;
   border-top: 1px solid #ecf0f1;
+}
+
+.login-prompt {
+  background-color: #f8f9fa;
+  padding: 25px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.login-prompt p {
+  margin: 0;
+  color: #7f8c8d;
+}
+
+.login-prompt a {
+  color: #3498db;
+  text-decoration: none;
+}
+
+.login-prompt a:hover {
+  text-decoration: underline;
 }
 </style>

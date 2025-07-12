@@ -15,9 +15,16 @@
         </div>
         
         <article class="post-content">
-          <h1 class="post-title">{{ post.title }}</h1>
+          <div class="post-header-actions">
+            <h1 class="post-title">{{ post.title }}</h1>
+            <div v-if="canEditPost" class="post-actions">
+              <button @click="editPost" class="btn-edit">편집</button>
+              <button @click="deletePost" class="btn-delete">삭제</button>
+            </div>
+          </div>
           
           <div class="post-meta">
+            <span class="post-author">작성자: {{ post.userResponse?.displayName || post.userResponse?.username || 'Unknown' }}</span>
             <span class="post-date">Created: {{ formatDate(post.createdDate) }}</span>
             <span v-if="post.modifiedDate !== post.createdDate" class="post-date">
               Modified: {{ formatDate(post.modifiedDate) }}
@@ -71,6 +78,7 @@
 <script>
 import { postService } from '../services/api'
 import CommentSection from '../components/CommentSection.vue'
+import { authStore } from '../store/auth'
 
 export default {
   name: 'PostDetail',
@@ -82,6 +90,15 @@ export default {
       post: null,
       loading: true,
       error: false
+    }
+  },
+  computed: {
+    canEditPost() {
+      return authStore.isAuthenticated && 
+             this.post && 
+             this.post.userResponse && 
+             authStore.user && 
+             this.post.userResponse.username === authStore.user.username
     }
   },
   async mounted() {
@@ -141,6 +158,22 @@ export default {
     
     onCommentsUpdated(count) {
       console.log(`Comments updated: ${count} comments`)
+    },
+    
+    editPost() {
+      this.$router.push(`/post/${this.post.id}/edit`)
+    },
+    
+    async deletePost() {
+      if (confirm('정말로 이 게시글을 삭제하시겠습니까?')) {
+        try {
+          await postService.deletePost(this.post.id)
+          this.$router.push('/')
+        } catch (error) {
+          console.error('Error deleting post:', error)
+          alert('게시글 삭제에 실패했습니다.')
+        }
+      }
     }
   },
   watch: {
@@ -207,18 +240,69 @@ export default {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+.post-header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
 .post-title {
   color: #2c3e50;
-  margin: 0 0 20px 0;
+  margin: 0;
   font-size: 2.5rem;
   line-height: 1.2;
   word-wrap: break-word;
+  flex: 1;
+}
+
+.post-actions {
+  display: flex;
+  gap: 10px;
+  margin-left: 20px;
+}
+
+.btn-edit {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.btn-edit:hover {
+  background-color: #2980b9;
+}
+
+.btn-delete {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.btn-delete:hover {
+  background-color: #c0392b;
 }
 
 .post-meta {
   border-bottom: 2px solid #ecf0f1;
   padding-bottom: 20px;
   margin-bottom: 30px;
+}
+
+.post-author {
+  color: #2c3e50;
+  font-weight: 500;
+  font-size: 0.9rem;
+  margin-right: 20px;
 }
 
 .post-date {
