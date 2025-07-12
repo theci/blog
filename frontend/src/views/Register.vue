@@ -106,10 +106,11 @@ export default {
         router.push('/')
       } catch (err) {
         if (err.response?.status === 400) {
-          error.value = '이미 존재하는 사용자명 또는 이메일입니다.'
+          error.value = err.response?.data?.message || '이미 존재하는 사용자명 또는 이메일입니다.'
         } else {
           error.value = '회원가입에 실패했습니다. 다시 시도해주세요.'
         }
+        console.error('Registration error:', err.response?.data)
       } finally {
         loading.value = false
       }

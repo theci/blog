@@ -61,7 +61,8 @@ export default {
         await authStore.login(credentials.value)
         router.push('/')
       } catch (err) {
-        error.value = '로그인에 실패했습니다. 사용자명과 비밀번호를 확인해주세요.'
+        error.value = err.response?.data?.message || '로그인에 실패했습니다. 사용자명과 비밀번호를 확인해주세요.'
+        console.error('Login error:', err.response?.data)
       } finally {
         loading.value = false
       }
