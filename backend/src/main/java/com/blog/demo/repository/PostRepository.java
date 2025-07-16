@@ -8,4 +8,9 @@ import java.util.List;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findAllByOrderByCreatedDateDesc();
+    
+    List<Post> findByTitleContainingIgnoreCaseOrderByCreatedDateDesc(String keyword);
+    List<Post> findByContentContainingIgnoreCaseOrderByCreatedDateDesc(String keyword);
+    List<Post> findByUserUsernameContainingIgnoreCaseOrderByCreatedDateDesc(String keyword);
+    List<Post> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrUserUsernameContainingIgnoreCaseOrderByCreatedDateDesc(String titleKeyword, String contentKeyword, String usernameKeyword);
 }

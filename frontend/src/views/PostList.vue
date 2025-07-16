@@ -6,10 +6,38 @@
         <button @click="goToCreate" class="btn-create">Write New Post</button>
       </div>
       
+      <div class="search-container">
+        <div class="search-wrapper">
+          <select v-model="searchType" class="search-dropdown">
+            <option value="all">전체</option>
+            <option value="title">제목</option>
+            <option value="content">내용</option>
+            <option value="author">작성자</option>
+          </select>
+          <input 
+            v-model="searchKeyword" 
+            @keyup.enter="handleSearch"
+            type="text" 
+            placeholder="검색어를 입력하세요 (최소 2글자)"
+            class="search-input"
+          />
+          <button @click="handleSearch" class="btn-search">
+            검색
+          </button>
+          <button @click="clearSearch" class="btn-clear" v-if="searchKeyword">
+            ✕
+          </button>
+        </div>
+        <div v-if="validationMessage" class="validation-message">
+          {{ validationMessage }}
+        </div>
+      </div>
+      
       <div v-if="loading" class="loading">Loading...</div>
       
       <div v-else-if="posts.length === 0" class="no-posts">
-        No posts available. Create your first post!
+        <span v-if="searchKeyword">검색 결과가 없습니다.</span>
+        <span v-else>No posts available. Create your first post!</span>
       </div>
       
       <div v-else class="posts-grid">
@@ -38,7 +66,10 @@ export default {
   data() {
     return {
       posts: [],
-      loading: true
+      loading: true,
+      searchKeyword: '',
+      searchType: 'all',
+      validationMessage: ''
     }
   },
   async mounted() {
@@ -72,6 +103,37 @@ export default {
         month: 'long',
         day: 'numeric'
       })
+    },
+    handleSearch() {
+      this.validationMessage = ''
+      
+      if (this.searchKeyword.length === 1) {
+        this.validationMessage = '2글자를 입력하시오.'
+        return
+      }
+      
+      if (this.searchKeyword.length < 2) {
+        this.fetchPosts()
+        return
+      }
+      
+      this.performSearch()
+    },
+    async performSearch() {
+      try {
+        this.loading = true
+        const response = await postService.searchPosts(this.searchKeyword, this.searchType)
+        this.posts = response.data
+      } catch (error) {
+        console.error('Error searching posts:', error)
+      } finally {
+        this.loading = false
+      }
+    },
+    clearSearch() {
+      this.searchKeyword = ''
+      this.validationMessage = ''
+      this.fetchPosts()
     }
   }
 }
@@ -166,5 +228,87 @@ export default {
 .post-date {
   color: #95a5a6;
   font-size: 0.9rem;
+}
+
+.search-container {
+  margin-bottom: 30px;
+}
+
+.search-wrapper {
+  display: flex;
+  gap: 10px;
+  max-width: 600px;
+  margin: 0 auto;
+  align-items: center;
+}
+
+.search-dropdown {
+  padding: 12px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 5px;
+  font-size: 16px;
+  background-color: white;
+  cursor: pointer;
+  min-width: 100px;
+}
+
+.search-dropdown:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+.search-input {
+  flex: 1;
+  padding: 12px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 5px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+.search-input::placeholder {
+  color: #bdc3c7;
+}
+
+.btn-clear {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 12px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.btn-clear:hover {
+  background-color: #c0392b;
+}
+
+.btn-search {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.btn-search:hover {
+  background-color: #2980b9;
+}
+
+.validation-message {
+  color: #e74c3c;
+  font-size: 14px;
+  margin-top: 5px;
+  text-align: center;
 }
 </style>

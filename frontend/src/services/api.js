@@ -28,6 +28,10 @@ export const postService = {
   
   deletePost(id) {
     return api.delete(`/posts/${id}`)
+  },
+  
+  searchPosts(keyword, searchType = 'all') {
+    return api.get(`/posts/search?keyword=${encodeURIComponent(keyword)}&searchType=${searchType}`)
   }
 }
 

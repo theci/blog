@@ -58,4 +58,15 @@ public class PostController {
             return ResponseEntity.notFound().build();
         }
     }
+    
+    @GetMapping("/search")
+    public ResponseEntity<List<PostResponse>> searchPosts(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "all") String searchType) {
+        if (keyword.length() < 2) {
+            return ResponseEntity.ok(List.of());
+        }
+        List<PostResponse> posts = postService.searchPosts(keyword, searchType);
+        return ResponseEntity.ok(posts);
+    }
 }

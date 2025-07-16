@@ -99,4 +99,27 @@ public class PostService {
         
         postRepository.deleteById(id);
     }
+    
+    public List<PostResponse> searchPosts(String keyword, String searchType) {
+        List<Post> posts;
+        
+        switch (searchType.toLowerCase()) {
+            case "title":
+                posts = postRepository.findByTitleContainingIgnoreCaseOrderByCreatedDateDesc(keyword);
+                break;
+            case "content":
+                posts = postRepository.findByContentContainingIgnoreCaseOrderByCreatedDateDesc(keyword);
+                break;
+            case "author":
+                posts = postRepository.findByUserUsernameContainingIgnoreCaseOrderByCreatedDateDesc(keyword);
+                break;
+            default:
+                posts = postRepository.findByTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrUserUsernameContainingIgnoreCaseOrderByCreatedDateDesc(keyword, keyword, keyword);
+                break;
+        }
+        
+        return posts.stream()
+                .map(PostResponse::new)
+                .collect(Collectors.toList());
+    }
 }
