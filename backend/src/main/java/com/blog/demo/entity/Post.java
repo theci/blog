@@ -29,6 +29,12 @@ public class Post {
     @Column(name = "category", nullable = false, length = 50)
     private String category;
     
+    @Column(name = "like_count", nullable = false, columnDefinition = "BIGINT DEFAULT 0")
+    private Long likeCount = 0L;
+    
+    @Column(name = "dislike_count", nullable = false, columnDefinition = "BIGINT DEFAULT 0")
+    private Long dislikeCount = 0L;
+    
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<FileAttachment> fileAttachments;
     
@@ -132,5 +138,45 @@ public class Post {
     
     public void setCategory(String category) {
         this.category = category;
+    }
+    
+    public Long getLikeCount() {
+        return likeCount;
+    }
+    
+    public void setLikeCount(Long likeCount) {
+        this.likeCount = likeCount;
+    }
+    
+    public Long getDislikeCount() {
+        return dislikeCount;
+    }
+    
+    public void setDislikeCount(Long dislikeCount) {
+        this.dislikeCount = dislikeCount;
+    }
+    
+    public void incrementLikeCount() {
+        this.likeCount++;
+    }
+    
+    public void decrementLikeCount() {
+        if (this.likeCount > 0) {
+            this.likeCount--;
+        }
+    }
+    
+    public void incrementDislikeCount() {
+        this.dislikeCount++;
+    }
+    
+    public void decrementDislikeCount() {
+        if (this.dislikeCount > 0) {
+            this.dislikeCount--;
+        }
+    }
+    
+    public Long getPopularityScore() {
+        return this.likeCount - this.dislikeCount;
     }
 }

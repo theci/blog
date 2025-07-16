@@ -29,6 +29,27 @@
             <span v-if="post.modifiedDate !== post.createdDate" class="post-date">
               Modified: {{ formatDate(post.modifiedDate) }}
             </span>
+            <span class="post-views">조회수: {{ post.viewCount || 0 }}</span>
+          </div>
+          
+          <div class="post-actions-likes">
+            <button 
+              v-if="isAuthenticated"
+              @click="toggleLike('like')" 
+              :class="['like-btn', { active: userLikeStatus === 'like' }]"
+            >
+              👍 {{ post.likeCount || 0 }}
+            </button>
+            <button 
+              v-if="isAuthenticated"
+              @click="toggleLike('dislike')" 
+              :class="['dislike-btn', { active: userLikeStatus === 'dislike' }]"
+            >
+              👎 {{ post.dislikeCount || 0 }}
+            </button>
+            <span v-if="!isAuthenticated" class="login-message">
+              로그인하여 좋아요/싫어요를 표시하세요
+            </span>
           </div>
           
           <div class="post-body" v-html="formatContent(post.content)"></div>
@@ -89,7 +110,8 @@ export default {
     return {
       post: null,
       loading: true,
-      error: false
+      error: false,
+      userLikeStatus: null
     }
   },
   computed: {
@@ -99,6 +121,9 @@ export default {
              this.post.userResponse && 
              authStore.user && 
              this.post.userResponse.username === authStore.user.username
+    },
+    isAuthenticated() {
+      return authStore.isAuthenticated
     }
   },
   async mounted() {
@@ -183,6 +208,17 @@ export default {
           console.error('Error deleting post:', error)
           alert('게시글 삭제에 실패했습니다.')
         }
+      }
+    },
+    async toggleLike(type) {
+      try {
+        await postService.toggleLike(this.post.id, type)
+        // 게시글 정보 새로고침
+        const response = await postService.getPostById(this.post.id)
+        this.post = response.data
+      } catch (error) {
+        console.error('Error toggling like:', error)
+        alert('좋아요/싫어요 처리에 실패했습니다.')
       }
     }
   },
@@ -319,6 +355,66 @@ export default {
   color: #95a5a6;
   font-size: 0.9rem;
   margin-right: 20px;
+}
+
+.post-views {
+  color: #3498db;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.post-actions-likes {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 20px 0;
+  padding: 15px 0;
+  border-top: 1px solid #ecf0f1;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.like-btn, .dislike-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 16px;
+  border: 2px solid #dee2e6;
+  border-radius: 20px;
+  background-color: #f8f9fa;
+  color: #6c757d;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.like-btn:hover {
+  background-color: #e8f5e8;
+  border-color: #28a745;
+  color: #28a745;
+}
+
+.like-btn.active {
+  background-color: #28a745;
+  border-color: #28a745;
+  color: white;
+}
+
+.dislike-btn:hover {
+  background-color: #fce8e8;
+  border-color: #dc3545;
+  color: #dc3545;
+}
+
+.dislike-btn.active {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  color: white;
+}
+
+.login-message {
+  color: #6c757d;
+  font-size: 14px;
+  font-style: italic;
 }
 
 .post-body {

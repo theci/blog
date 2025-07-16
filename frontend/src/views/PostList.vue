@@ -57,30 +57,40 @@
         </button>
       </div>
       
-      <div class="search-container">
-        <div class="search-wrapper">
-          <select v-model="searchType" class="search-dropdown">
-            <option value="all">전체</option>
-            <option value="title">제목</option>
-            <option value="content">내용</option>
-            <option value="author">작성자</option>
+      <div class="controls-container">
+        <div class="sort-container">
+          <select v-model="sortBy" @change="handleSortChange" class="sort-dropdown">
+            <option value="recent">최신순</option>
+            <option value="views">조회순</option>
+            <option value="popularity">인기순</option>
           </select>
-          <input 
-            v-model="searchKeyword" 
-            @keyup.enter="handleSearch"
-            type="text" 
-            placeholder="검색어를 입력하세요 (최소 2글자)"
-            class="search-input"
-          />
-          <button @click="handleSearch" class="btn-search">
-            검색
-          </button>
-          <button @click="clearSearch" class="btn-clear" v-if="searchKeyword">
-            ✕
-          </button>
         </div>
-        <div v-if="validationMessage" class="validation-message">
-          {{ validationMessage }}
+        
+        <div class="search-container">
+          <div class="search-wrapper">
+            <select v-model="searchType" class="search-dropdown">
+              <option value="all">전체</option>
+              <option value="title">제목</option>
+              <option value="content">내용</option>
+              <option value="author">작성자</option>
+            </select>
+            <input 
+              v-model="searchKeyword" 
+              @keyup.enter="handleSearch"
+              type="text" 
+              placeholder="검색어를 입력하세요 (최소 2글자)"
+              class="search-input"
+            />
+            <button @click="handleSearch" class="btn-search">
+              검색
+            </button>
+            <button @click="clearSearch" class="btn-clear" v-if="searchKeyword">
+              ✕
+            </button>
+          </div>
+          <div v-if="validationMessage" class="validation-message">
+            {{ validationMessage }}
+          </div>
         </div>
       </div>
       
@@ -103,7 +113,10 @@
           <p class="post-content">{{ truncateContent(post.content) }}</p>
           <div class="post-meta">
             <span class="post-date">{{ formatDate(post.createdDate) }}</span>
-            <span class="post-views">조회수: {{ post.viewCount || 0 }}</span>
+            <div class="post-stats">
+              <span class="post-views">조회수: {{ post.viewCount || 0 }}</span>
+              <span class="post-likes">{{ (post.likeCount || 0) - (post.dislikeCount || 0) }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -123,7 +136,8 @@ export default {
       searchKeyword: '',
       searchType: 'all',
       validationMessage: '',
-      selectedCategory: 'all'
+      selectedCategory: 'all',
+      sortBy: 'recent'
     }
   },
   async mounted() {
@@ -193,7 +207,23 @@ export default {
       this.selectedCategory = category
       this.searchKeyword = ''
       this.validationMessage = ''
-      await this.fetchPostsByCategory(category)
+      await this.fetchPostsSorted()
+    },
+    async handleSortChange() {
+      this.searchKeyword = ''
+      this.validationMessage = ''
+      await this.fetchPostsSorted()
+    },
+    async fetchPostsSorted() {
+      try {
+        this.loading = true
+        const response = await postService.getPostsSorted(this.sortBy, this.selectedCategory)
+        this.posts = response.data
+      } catch (error) {
+        console.error('Error fetching sorted posts:', error)
+      } finally {
+        this.loading = false
+      }
     },
     async fetchPostsByCategory(category) {
       try {
@@ -320,14 +350,57 @@ export default {
   font-size: 0.9rem;
 }
 
+.post-stats {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
 .post-views {
   color: #3498db;
   font-size: 0.9rem;
   font-weight: 500;
 }
 
-.search-container {
+.post-likes {
+  color: #e74c3c;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  background-color: #fef2f2;
+  border-radius: 10px;
+  border: 1px solid #fecaca;
+}
+
+.controls-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
   margin-bottom: 30px;
+}
+
+.sort-container {
+  flex-shrink: 0;
+}
+
+.sort-dropdown {
+  padding: 8px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 5px;
+  font-size: 14px;
+  background-color: white;
+  cursor: pointer;
+  min-width: 100px;
+}
+
+.sort-dropdown:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+.search-container {
+  flex: 1;
 }
 
 .search-wrapper {

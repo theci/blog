@@ -3,7 +3,9 @@ package com.blog.demo.service;
 import com.blog.demo.dto.PostRequest;
 import com.blog.demo.dto.PostResponse;
 import com.blog.demo.entity.Post;
+import com.blog.demo.entity.PostLike;
 import com.blog.demo.entity.User;
+import com.blog.demo.repository.PostLikeRepository;
 import com.blog.demo.repository.PostRepository;
 import com.blog.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,6 +24,9 @@ public class PostService {
     
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private PostLikeRepository postLikeRepository;
     
     public List<PostResponse> getAllPosts() {
         return postRepository.findAllByOrderByCreatedDateDesc()
@@ -143,6 +149,100 @@ public class PostService {
     public List<PostResponse> getPostsByCategory(String category) {
         return postRepository.findByCategoryOrderByCreatedDateDesc(category)
                 .stream()
+                .map(PostResponse::new)
+                .collect(Collectors.toList());
+    }
+    
+    public void toggleLike(Long postId, String likeType) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        
+        if (username == null || "anonymousUser".equals(username)) {
+            throw new RuntimeException("User must be authenticated to like/dislike posts");
+        }
+        
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+        
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found with id: " + postId));
+        
+        PostLike.LikeType newLikeType = "like".equalsIgnoreCase(likeType) ? 
+                PostLike.LikeType.LIKE : PostLike.LikeType.DISLIKE;
+        
+        Optional<PostLike> existingLike = postLikeRepository.findByUserIdAndPostId(user.getId(), postId);
+        
+        if (existingLike.isPresent()) {
+            PostLike like = existingLike.get();
+            
+            if (like.getLikeType() == newLikeType) {
+                // 같은 버튼을 다시 누르면 취소
+                if (newLikeType == PostLike.LikeType.LIKE) {
+                    post.decrementLikeCount();
+                } else {
+                    post.decrementDislikeCount();
+                }
+                postLikeRepository.delete(like);
+            } else {
+                // 다른 버튼을 누르면 변경
+                if (like.getLikeType() == PostLike.LikeType.LIKE) {
+                    post.decrementLikeCount();
+                    post.incrementDislikeCount();
+                } else {
+                    post.decrementDislikeCount();
+                    post.incrementLikeCount();
+                }
+                like.setLikeType(newLikeType);
+                postLikeRepository.save(like);
+            }
+        } else {
+            // 새로운 좋아요/싫어요
+            PostLike newLike = new PostLike();
+            newLike.setUser(user);
+            newLike.setPost(post);
+            newLike.setLikeType(newLikeType);
+            postLikeRepository.save(newLike);
+            
+            if (newLikeType == PostLike.LikeType.LIKE) {
+                post.incrementLikeCount();
+            } else {
+                post.incrementDislikeCount();
+            }
+        }
+        
+        postRepository.save(post);
+    }
+    
+    public List<PostResponse> getAllPostsSorted(String sortBy, String category) {
+        List<Post> posts;
+        
+        if ("all".equals(category)) {
+            switch (sortBy) {
+                case "views":
+                    posts = postRepository.findAllByOrderByViewCountDesc();
+                    break;
+                case "popularity":
+                    posts = postRepository.findAllByOrderByPopularityDesc();
+                    break;
+                default:
+                    posts = postRepository.findAllByOrderByCreatedDateDesc();
+                    break;
+            }
+        } else {
+            switch (sortBy) {
+                case "views":
+                    posts = postRepository.findByCategoryOrderByViewCountDesc(category);
+                    break;
+                case "popularity":
+                    posts = postRepository.findByCategoryOrderByPopularityDesc(category);
+                    break;
+                default:
+                    posts = postRepository.findByCategoryOrderByCreatedDateDesc(category);
+                    break;
+            }
+        }
+        
+        return posts.stream()
                 .map(PostResponse::new)
                 .collect(Collectors.toList());
     }

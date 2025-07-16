@@ -40,6 +40,14 @@ export const postService = {
   
   getPostsByCategory(category) {
     return api.get(`/posts/category/${category}`)
+  },
+  
+  toggleLike(id, type) {
+    return api.post(`/posts/${id}/like?type=${type}`)
+  },
+  
+  getPostsSorted(sortBy = 'recent', category = 'all') {
+    return api.get(`/posts/sorted?sortBy=${sortBy}&category=${category}`)
   }
 }
 

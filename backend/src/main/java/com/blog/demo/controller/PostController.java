@@ -85,4 +85,22 @@ public class PostController {
         List<PostResponse> posts = postService.getPostsByCategory(category);
         return ResponseEntity.ok(posts);
     }
+    
+    @PostMapping("/{id}/like")
+    public ResponseEntity<Void> toggleLike(@PathVariable Long id, @RequestParam String type) {
+        try {
+            postService.toggleLike(id, type);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    
+    @GetMapping("/sorted")
+    public ResponseEntity<List<PostResponse>> getPostsSorted(
+            @RequestParam(defaultValue = "recent") String sortBy,
+            @RequestParam(defaultValue = "all") String category) {
+        List<PostResponse> posts = postService.getAllPostsSorted(sortBy, category);
+        return ResponseEntity.ok(posts);
+    }
 }
