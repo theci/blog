@@ -23,6 +23,9 @@ public class Post {
     @Column(name = "modified_date")
     private LocalDateTime modifiedDate;
     
+    @Column(name = "view_count", nullable = false, columnDefinition = "BIGINT DEFAULT 0")
+    private Long viewCount = 0L;
+    
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<FileAttachment> fileAttachments;
     
@@ -106,5 +109,17 @@ public class Post {
     
     public void setUser(User user) {
         this.user = user;
+    }
+    
+    public Long getViewCount() {
+        return viewCount;
+    }
+    
+    public void setViewCount(Long viewCount) {
+        this.viewCount = viewCount;
+    }
+    
+    public void incrementViewCount() {
+        this.viewCount++;
     }
 }

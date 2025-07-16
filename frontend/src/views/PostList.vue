@@ -51,6 +51,7 @@
           <p class="post-content">{{ truncateContent(post.content) }}</p>
           <div class="post-meta">
             <span class="post-date">{{ formatDate(post.createdDate) }}</span>
+            <span class="post-views">조회수: {{ post.viewCount || 0 }}</span>
           </div>
         </div>
       </div>
@@ -223,11 +224,20 @@ export default {
 .post-meta {
   border-top: 1px solid #ecf0f1;
   padding-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .post-date {
   color: #95a5a6;
   font-size: 0.9rem;
+}
+
+.post-views {
+  color: #3498db;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
 .search-container {

@@ -69,4 +69,14 @@ public class PostController {
         List<PostResponse> posts = postService.searchPosts(keyword, searchType);
         return ResponseEntity.ok(posts);
     }
+    
+    @PostMapping("/{id}/view")
+    public ResponseEntity<Void> incrementViewCount(@PathVariable Long id) {
+        try {
+            postService.incrementViewCount(id);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

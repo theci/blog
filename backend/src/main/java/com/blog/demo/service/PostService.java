@@ -122,4 +122,19 @@ public class PostService {
                 .map(PostResponse::new)
                 .collect(Collectors.toList());
     }
+    
+    public void incrementViewCount(Long postId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found with id: " + postId));
+        
+        // 작성자 본인이 아닌 경우에만 조회수 증가
+        if (username == null || "anonymousUser".equals(username) || 
+            post.getUser() == null || !post.getUser().getUsername().equals(username)) {
+            post.incrementViewCount();
+            postRepository.save(post);
+        }
+    }
 }

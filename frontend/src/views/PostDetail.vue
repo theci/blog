@@ -112,11 +112,21 @@ export default {
         const postId = this.$route.params.id
         const response = await postService.getPostById(postId)
         this.post = response.data
+        
+        // 게시글 조회 후 조회수 증가
+        await this.incrementViewCount(postId)
       } catch (error) {
         console.error('Error fetching post:', error)
         this.error = true
       } finally {
         this.loading = false
+      }
+    },
+    async incrementViewCount(postId) {
+      try {
+        await postService.incrementViewCount(postId)
+      } catch (error) {
+        console.error('Error incrementing view count:', error)
       }
     },
     goBack() {

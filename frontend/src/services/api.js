@@ -32,6 +32,10 @@ export const postService = {
   
   searchPosts(keyword, searchType = 'all') {
     return api.get(`/posts/search?keyword=${encodeURIComponent(keyword)}&searchType=${searchType}`)
+  },
+  
+  incrementViewCount(id) {
+    return api.post(`/posts/${id}/view`)
   }
 }
 
