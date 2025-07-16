@@ -29,7 +29,7 @@ public class PostService {
     private PostLikeRepository postLikeRepository;
     
     public List<PostResponse> getAllPosts() {
-        return postRepository.findAllByOrderByCreatedDateDesc()
+        return postRepository.findByIsHiddenFalseOrderByCreatedDateDesc()
                 .stream()
                 .map(PostResponse::new)
                 .collect(Collectors.toList());
@@ -147,7 +147,7 @@ public class PostService {
     }
     
     public List<PostResponse> getPostsByCategory(String category) {
-        return postRepository.findByCategoryOrderByCreatedDateDesc(category)
+        return postRepository.findByCategoryAndIsHiddenFalseOrderByCreatedDateDesc(category)
                 .stream()
                 .map(PostResponse::new)
                 .collect(Collectors.toList());
@@ -219,25 +219,25 @@ public class PostService {
         if ("all".equals(category)) {
             switch (sortBy) {
                 case "views":
-                    posts = postRepository.findAllByOrderByViewCountDesc();
+                    posts = postRepository.findByIsHiddenFalseOrderByViewCountDesc();
                     break;
                 case "popularity":
-                    posts = postRepository.findAllByOrderByPopularityDesc();
+                    posts = postRepository.findByIsHiddenFalseOrderByPopularityDesc();
                     break;
                 default:
-                    posts = postRepository.findAllByOrderByCreatedDateDesc();
+                    posts = postRepository.findByIsHiddenFalseOrderByCreatedDateDesc();
                     break;
             }
         } else {
             switch (sortBy) {
                 case "views":
-                    posts = postRepository.findByCategoryOrderByViewCountDesc(category);
+                    posts = postRepository.findByCategoryAndIsHiddenFalseOrderByViewCountDesc(category);
                     break;
                 case "popularity":
-                    posts = postRepository.findByCategoryOrderByPopularityDesc(category);
+                    posts = postRepository.findByCategoryAndIsHiddenFalseOrderByPopularityDesc(category);
                     break;
                 default:
-                    posts = postRepository.findByCategoryOrderByCreatedDateDesc(category);
+                    posts = postRepository.findByCategoryAndIsHiddenFalseOrderByCreatedDateDesc(category);
                     break;
             }
         }

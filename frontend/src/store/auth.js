@@ -11,9 +11,19 @@ export const authStore = reactive({
     const storedToken = localStorage.getItem('token')
     
     if (storedUser && storedToken) {
-      this.user = JSON.parse(storedUser)
-      this.token = storedToken
-      this.isAuthenticated = true
+      try {
+        this.user = JSON.parse(storedUser)
+        this.token = storedToken
+        this.isAuthenticated = true
+        console.log('AuthStore initialized:', {
+          user: this.user,
+          role: this.user?.role,
+          isAuthenticated: this.isAuthenticated
+        })
+      } catch (error) {
+        console.error('Error parsing stored user data:', error)
+        this.logout()
+      }
     }
   },
 
@@ -27,6 +37,13 @@ export const authStore = reactive({
     
     localStorage.setItem('token', token)
     localStorage.setItem('user', JSON.stringify(user))
+    
+    console.log('Login successful:', {
+      user: this.user,
+      role: this.user?.role,
+      isAuthenticated: this.isAuthenticated,
+      token: token ? 'present' : 'missing'
+    })
     
     return response.data
   },

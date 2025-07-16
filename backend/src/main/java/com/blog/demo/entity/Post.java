@@ -35,6 +35,18 @@ public class Post {
     @Column(name = "dislike_count", nullable = false, columnDefinition = "BIGINT DEFAULT 0")
     private Long dislikeCount = 0L;
     
+    @Column(name = "is_hidden", nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
+    private Boolean isHidden = false;
+    
+    @Column(name = "hidden_by")
+    private String hiddenBy;
+    
+    @Column(name = "hidden_date")
+    private LocalDateTime hiddenDate;
+    
+    @Column(name = "hidden_reason", length = 500)
+    private String hiddenReason;
+    
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<FileAttachment> fileAttachments;
     
@@ -178,5 +190,51 @@ public class Post {
     
     public Long getPopularityScore() {
         return this.likeCount - this.dislikeCount;
+    }
+    
+    public Boolean getIsHidden() {
+        return isHidden;
+    }
+    
+    public void setIsHidden(Boolean isHidden) {
+        this.isHidden = isHidden;
+    }
+    
+    public String getHiddenBy() {
+        return hiddenBy;
+    }
+    
+    public void setHiddenBy(String hiddenBy) {
+        this.hiddenBy = hiddenBy;
+    }
+    
+    public LocalDateTime getHiddenDate() {
+        return hiddenDate;
+    }
+    
+    public void setHiddenDate(LocalDateTime hiddenDate) {
+        this.hiddenDate = hiddenDate;
+    }
+    
+    public String getHiddenReason() {
+        return hiddenReason;
+    }
+    
+    public void setHiddenReason(String hiddenReason) {
+        this.hiddenReason = hiddenReason;
+    }
+    
+    public void hide(String hiddenBy, String reason) {
+        this.isHidden = true;
+        this.hiddenBy = hiddenBy;
+        this.hiddenDate = LocalDateTime.now();
+        this.hiddenReason = reason;
+    }
+    
+    public void unhide() {
+        this.isHidden = false;
+        this.hiddenBy = null;
+        this.hiddenDate = null;
+        this.hiddenReason = null;
     }
 }

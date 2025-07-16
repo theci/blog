@@ -29,6 +29,10 @@ public class User {
     @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
     private Integer points = 0;
     
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "VARCHAR(20) DEFAULT 'USER'")
+    private Role role = Role.USER;
+    
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Post> posts;
     
@@ -114,5 +118,21 @@ public class User {
     
     public void addPoints(Integer points) {
         this.points += points;
+    }
+    
+    public Role getRole() {
+        return role;
+    }
+    
+    public void setRole(Role role) {
+        this.role = role;
+    }
+    
+    public boolean isAdmin() {
+        return role == Role.ADMIN;
+    }
+    
+    public enum Role {
+        USER, ADMIN
     }
 }

@@ -10,6 +10,7 @@ public class UserResponse {
     private String displayName;
     private LocalDateTime createdDate;
     private Integer points;
+    private String role;
     
     public UserResponse(User user) {
         this.id = user.getId();
@@ -18,6 +19,7 @@ public class UserResponse {
         this.displayName = user.getDisplayName();
         this.createdDate = user.getCreatedDate();
         this.points = user.getPoints();
+        this.role = user.getRole().name();
     }
     
     public Long getId() {
@@ -66,5 +68,13 @@ public class UserResponse {
     
     public void setPoints(Integer points) {
         this.points = points;
+    }
+    
+    public String getRole() {
+        return role;
+    }
+    
+    public void setRole(String role) {
+        this.role = role;
     }
 }

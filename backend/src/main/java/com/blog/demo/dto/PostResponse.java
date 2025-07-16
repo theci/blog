@@ -17,6 +17,9 @@ public class PostResponse {
     private Long dislikeCount;
     private UserResponse userResponse;
     private List<FileAttachmentResponse> fileAttachments;
+    private Boolean hidden;
+    private String hiddenReason;
+    private LocalDateTime hiddenDate;
     
     public PostResponse(Post post) {
         this.id = post.getId();
@@ -33,6 +36,9 @@ public class PostResponse {
             post.getFileAttachments().stream()
                 .map(FileAttachmentResponse::new)
                 .collect(Collectors.toList()) : null;
+        this.hidden = post.getIsHidden();
+        this.hiddenReason = post.getHiddenReason();
+        this.hiddenDate = post.getHiddenDate();
     }
     
     public Long getId() {
@@ -121,5 +127,33 @@ public class PostResponse {
     
     public void setDislikeCount(Long dislikeCount) {
         this.dislikeCount = dislikeCount;
+    }
+    
+    public Boolean getHidden() {
+        return hidden;
+    }
+    
+    public void setHidden(Boolean hidden) {
+        this.hidden = hidden;
+    }
+    
+    public String getHiddenReason() {
+        return hiddenReason;
+    }
+    
+    public void setHiddenReason(String hiddenReason) {
+        this.hiddenReason = hiddenReason;
+    }
+    
+    public LocalDateTime getHiddenDate() {
+        return hiddenDate;
+    }
+    
+    public void setHiddenDate(LocalDateTime hiddenDate) {
+        this.hiddenDate = hiddenDate;
+    }
+    
+    public String getUsername() {
+        return userResponse != null ? userResponse.getUsername() : null;
     }
 }

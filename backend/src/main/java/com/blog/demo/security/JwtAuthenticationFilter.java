@@ -29,15 +29,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
             String jwt = getJwtFromRequest(request);
+            String requestURI = request.getRequestURI();
 
             if (StringUtils.hasText(jwt) && jwtUtil.validateToken(jwt)) {
                 String username = jwtUtil.getUsernameFromToken(jwt);
+                System.out.println("JWT Auth - Request: " + requestURI + ", User: " + username);
 
                 UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+                System.out.println("JWT Auth - UserDetails: " + userDetails.getUsername() + ", Authorities: " + userDetails.getAuthorities());
+                
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else if (requestURI.startsWith("/api/admin")) {
+                System.out.println("JWT Auth - No valid token for admin request: " + requestURI);
             }
         } catch (Exception ex) {
             logger.error("Could not set user authentication in security context", ex);

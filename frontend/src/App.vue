@@ -12,6 +12,7 @@
           <div v-else class="user-menu">
             <router-link to="/create" class="nav-link">글쓰기</router-link>
             <router-link to="/profile" class="nav-link profile-btn">프로필</router-link>
+            <router-link v-if="isAdmin" to="/admin" class="nav-link admin-btn">Admin</router-link>
             <span class="user-info">{{ authStore.user?.displayName || authStore.user?.username }}</span>
             <button @click="handleLogout" class="nav-link logout-btn">로그아웃</button>
           </div>
@@ -25,6 +26,7 @@
 <script>
 import { authStore } from './store/auth'
 import { useRouter } from 'vue-router'
+import { computed } from 'vue'
 
 export default {
   name: 'App',
@@ -36,9 +38,14 @@ export default {
       router.push('/')
     }
 
+    const isAdmin = computed(() => {
+      return authStore.user?.role === 'ADMIN'
+    })
+
     return {
       authStore,
-      handleLogout
+      handleLogout,
+      isAdmin
     }
   }
 }
@@ -152,6 +159,18 @@ export default {
 
 .profile-btn:hover {
   background-color: #8e44ad;
+  color: white;
+}
+
+.admin-btn {
+  background-color: #f39c12;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.admin-btn:hover {
+  background-color: #e67e22;
   color: white;
 }
 </style>

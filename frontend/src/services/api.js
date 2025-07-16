@@ -51,6 +51,47 @@ export const postService = {
   }
 }
 
+export const adminService = {
+  getAllUsers() {
+    return api.get('/admin/users')
+  },
+  
+  getAllPosts() {
+    return api.get('/admin/posts')
+  },
+  
+  suspendUser(userId, days, reason) {
+    return api.post(`/admin/users/${userId}/suspend`, { days, reason })
+  },
+  
+  unsuspendUser(userId) {
+    return api.post(`/admin/users/${userId}/unsuspend`)
+  },
+  
+  hidePost(postId, reason) {
+    return api.post(`/admin/posts/${postId}/hide`, { reason })
+  },
+  
+  unhidePost(postId) {
+    return api.post(`/admin/posts/${postId}/unhide`)
+  },
+  
+  deletePost(postId) {
+    return api.delete(`/admin/posts/${postId}`)
+  },
+  
+  getUserSuspension(userId) {
+    return api.get(`/admin/users/${userId}/suspension`)
+      .catch(error => {
+        // 404 에러는 정지 정보가 없다는 뜻이므로 조용히 처리
+        if (error.response?.status === 404) {
+          return { data: null }
+        }
+        throw error
+      })
+  }
+}
+
 export const fileService = {
   uploadFiles(postId, files) {
     const formData = new FormData()
@@ -111,6 +152,9 @@ api.interceptors.request.use(
     const token = localStorage.getItem('token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
+      console.log('API Request:', config.method?.toUpperCase(), config.url, 'with token')
+    } else {
+      console.log('API Request:', config.method?.toUpperCase(), config.url, 'without token')
     }
     return config
   },
@@ -122,10 +166,30 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // 404 에러는 정상적인 상황일 수 있으므로 로그 레벨을 낮춤
+    if (error.response?.status === 404) {
+      console.debug('API 404:', error.config?.url);
+    } else if (error.response?.status !== 401 && error.response?.status !== 403) {
+      console.log('API Error:', error.response?.status, error.response?.data);
+    }
+    
     if (error.response?.status === 401) {
+      // 토큰이 만료되었거나 무효한 경우
       localStorage.removeItem('token')
       localStorage.removeItem('user')
-      window.location.href = '/login'
+      // authStore도 초기화
+      if (typeof window !== 'undefined' && window.authStore) {
+        window.authStore.user = null
+        window.authStore.token = null
+        window.authStore.isAuthenticated = false
+      }
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login'
+      }
+    } else if (error.response?.status === 403) {
+      // 권한 없음 - 현재 페이지에서 에러 처리
+      console.error('Access denied:', error.response.data)
+      alert('권한이 없습니다.')
     }
     return Promise.reject(error)
   }
