@@ -62,6 +62,9 @@ public class AuthService {
         User user = userRepository.findByUsername(request.getUsername())
             .orElseThrow(() -> new RuntimeException("User not found"));
         
+        user.addPoints(10);
+        userRepository.save(user);
+        
         return new AuthResponse(jwt, new UserResponse(user));
     }
     

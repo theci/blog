@@ -4,6 +4,7 @@ import PostDetail from '../views/PostDetail.vue'
 import PostCreate from '../views/PostCreate.vue'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
+import Profile from '../views/Profile.vue'
 import { authStore } from '../store/auth'
 
 const routes = [
@@ -34,6 +35,12 @@ const routes = [
     name: 'Register',
     component: Register,
     meta: { guest: true }
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: Profile,
+    meta: { requiresAuth: true }
   }
 ]
 

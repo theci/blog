@@ -9,6 +9,7 @@ public class UserResponse {
     private String email;
     private String displayName;
     private LocalDateTime createdDate;
+    private Integer points;
     
     public UserResponse(User user) {
         this.id = user.getId();
@@ -16,6 +17,7 @@ public class UserResponse {
         this.email = user.getEmail();
         this.displayName = user.getDisplayName();
         this.createdDate = user.getCreatedDate();
+        this.points = user.getPoints();
     }
     
     public Long getId() {
@@ -56,5 +58,13 @@ public class UserResponse {
     
     public void setCreatedDate(LocalDateTime createdDate) {
         this.createdDate = createdDate;
+    }
+    
+    public Integer getPoints() {
+        return points;
+    }
+    
+    public void setPoints(Integer points) {
+        this.points = points;
     }
 }

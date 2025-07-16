@@ -10,6 +10,8 @@
             <router-link to="/register" class="nav-link register-btn">회원가입</router-link>
           </div>
           <div v-else class="user-menu">
+            <router-link to="/create" class="nav-link">글쓰기</router-link>
+            <router-link to="/profile" class="nav-link profile-btn">프로필</router-link>
             <span class="user-info">{{ authStore.user?.displayName || authStore.user?.username }}</span>
             <button @click="handleLogout" class="nav-link logout-btn">로그아웃</button>
           </div>
@@ -138,6 +140,18 @@ export default {
 
 .logout-btn:hover {
   background-color: #c0392b;
+  color: white;
+}
+
+.profile-btn {
+  background-color: #9b59b6;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.profile-btn:hover {
+  background-color: #8e44ad;
   color: white;
 }
 </style>

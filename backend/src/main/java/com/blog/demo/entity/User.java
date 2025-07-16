@@ -26,6 +26,9 @@ public class User {
     @Column(name = "created_date")
     private LocalDateTime createdDate;
     
+    @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
+    private Integer points = 0;
+    
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Post> posts;
     
@@ -99,5 +102,17 @@ public class User {
     
     public void setComments(List<Comment> comments) {
         this.comments = comments;
+    }
+    
+    public Integer getPoints() {
+        return points;
+    }
+    
+    public void setPoints(Integer points) {
+        this.points = points;
+    }
+    
+    public void addPoints(Integer points) {
+        this.points += points;
     }
 }
