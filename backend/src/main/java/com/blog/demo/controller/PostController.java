@@ -79,4 +79,10 @@ public class PostController {
             return ResponseEntity.notFound().build();
         }
     }
+    
+    @GetMapping("/category/{category}")
+    public ResponseEntity<List<PostResponse>> getPostsByCategory(@PathVariable String category) {
+        List<PostResponse> posts = postService.getPostsByCategory(category);
+        return ResponseEntity.ok(posts);
+    }
 }

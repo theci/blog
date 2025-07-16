@@ -6,6 +6,57 @@
         <button @click="goToCreate" class="btn-create">Write New Post</button>
       </div>
       
+      <div class="category-menu">
+        <button 
+          @click="selectCategory('all')" 
+          :class="['category-btn', { active: selectedCategory === 'all' }]"
+        >
+          전체
+        </button>
+        <button 
+          @click="selectCategory('정치')" 
+          :class="['category-btn', { active: selectedCategory === '정치' }]"
+        >
+          정치
+        </button>
+        <button 
+          @click="selectCategory('연예')" 
+          :class="['category-btn', { active: selectedCategory === '연예' }]"
+        >
+          연예
+        </button>
+        <button 
+          @click="selectCategory('스포츠')" 
+          :class="['category-btn', { active: selectedCategory === '스포츠' }]"
+        >
+          스포츠
+        </button>
+        <button 
+          @click="selectCategory('유머')" 
+          :class="['category-btn', { active: selectedCategory === '유머' }]"
+        >
+          유머
+        </button>
+        <button 
+          @click="selectCategory('게임')" 
+          :class="['category-btn', { active: selectedCategory === '게임' }]"
+        >
+          게임
+        </button>
+        <button 
+          @click="selectCategory('쇼핑')" 
+          :class="['category-btn', { active: selectedCategory === '쇼핑' }]"
+        >
+          쇼핑
+        </button>
+        <button 
+          @click="selectCategory('지식')" 
+          :class="['category-btn', { active: selectedCategory === '지식' }]"
+        >
+          지식
+        </button>
+      </div>
+      
       <div class="search-container">
         <div class="search-wrapper">
           <select v-model="searchType" class="search-dropdown">
@@ -47,6 +98,7 @@
           class="post-card"
           @click="goToDetail(post.id)"
         >
+          <div class="post-category-badge">{{ post.category }}</div>
           <h3 class="post-title">{{ post.title }}</h3>
           <p class="post-content">{{ truncateContent(post.content) }}</p>
           <div class="post-meta">
@@ -70,7 +122,8 @@ export default {
       loading: true,
       searchKeyword: '',
       searchType: 'all',
-      validationMessage: ''
+      validationMessage: '',
+      selectedCategory: 'all'
     }
   },
   async mounted() {
@@ -135,6 +188,28 @@ export default {
       this.searchKeyword = ''
       this.validationMessage = ''
       this.fetchPosts()
+    },
+    async selectCategory(category) {
+      this.selectedCategory = category
+      this.searchKeyword = ''
+      this.validationMessage = ''
+      await this.fetchPostsByCategory(category)
+    },
+    async fetchPostsByCategory(category) {
+      try {
+        this.loading = true
+        if (category === 'all') {
+          const response = await postService.getAllPosts()
+          this.posts = response.data
+        } else {
+          const response = await postService.getPostsByCategory(category)
+          this.posts = response.data
+        }
+      } catch (error) {
+        console.error('Error fetching posts by category:', error)
+      } finally {
+        this.loading = false
+      }
     }
   }
 }
@@ -206,6 +281,17 @@ export default {
 .post-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.post-category-badge {
+  background-color: #e74c3c;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  display: inline-block;
+  margin-bottom: 10px;
 }
 
 .post-title {
@@ -298,6 +384,44 @@ export default {
 
 .btn-clear:hover {
   background-color: #c0392b;
+}
+
+.category-menu {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 20px 0;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.category-btn {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.category-btn:hover {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+.category-btn.active {
+  background-color: #3498db;
+  color: white;
+  border-color: #3498db;
+}
+
+.category-btn.active:hover {
+  background-color: #2980b9;
+  border-color: #2980b9;
 }
 
 .btn-search {

@@ -36,6 +36,10 @@ export const postService = {
   
   incrementViewCount(id) {
     return api.post(`/posts/${id}/view`)
+  },
+  
+  getPostsByCategory(category) {
+    return api.get(`/posts/category/${category}`)
   }
 }
 

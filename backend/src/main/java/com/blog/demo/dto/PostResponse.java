@@ -12,6 +12,7 @@ public class PostResponse {
     private LocalDateTime createdDate;
     private LocalDateTime modifiedDate;
     private Long viewCount;
+    private String category;
     private UserResponse userResponse;
     private List<FileAttachmentResponse> fileAttachments;
     
@@ -22,6 +23,7 @@ public class PostResponse {
         this.createdDate = post.getCreatedDate();
         this.modifiedDate = post.getModifiedDate();
         this.viewCount = post.getViewCount();
+        this.category = post.getCategory();
         this.userResponse = post.getUser() != null ? new UserResponse(post.getUser()) : null;
         this.fileAttachments = post.getFileAttachments() != null ? 
             post.getFileAttachments().stream()
@@ -91,5 +93,13 @@ public class PostResponse {
     
     public void setViewCount(Long viewCount) {
         this.viewCount = viewCount;
+    }
+    
+    public String getCategory() {
+        return category;
+    }
+    
+    public void setCategory(String category) {
+        this.category = category;
     }
 }

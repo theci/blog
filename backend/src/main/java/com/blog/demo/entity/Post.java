@@ -26,6 +26,9 @@ public class Post {
     @Column(name = "view_count", nullable = false, columnDefinition = "BIGINT DEFAULT 0")
     private Long viewCount = 0L;
     
+    @Column(name = "category", nullable = false, length = 50)
+    private String category;
+    
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<FileAttachment> fileAttachments;
     
@@ -121,5 +124,13 @@ public class Post {
     
     public void incrementViewCount() {
         this.viewCount++;
+    }
+    
+    public String getCategory() {
+        return category;
+    }
+    
+    public void setCategory(String category) {
+        this.category = category;
     }
 }

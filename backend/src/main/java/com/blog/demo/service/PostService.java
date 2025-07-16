@@ -54,6 +54,7 @@ public class PostService {
         Post post = new Post();
         post.setTitle(request.getTitle());
         post.setContent(request.getContent());
+        post.setCategory(request.getCategory());
         post.setUser(user);
         
         Post savedPost = postRepository.save(post);
@@ -77,6 +78,7 @@ public class PostService {
         
         post.setTitle(request.getTitle());
         post.setContent(request.getContent());
+        post.setCategory(request.getCategory());
         
         Post updatedPost = postRepository.save(post);
         return new PostResponse(updatedPost);
@@ -136,5 +138,12 @@ public class PostService {
             post.incrementViewCount();
             postRepository.save(post);
         }
+    }
+    
+    public List<PostResponse> getPostsByCategory(String category) {
+        return postRepository.findByCategoryOrderByCreatedDateDesc(category)
+                .stream()
+                .map(PostResponse::new)
+                .collect(Collectors.toList());
     }
 }

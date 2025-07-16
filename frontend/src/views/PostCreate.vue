@@ -20,6 +20,25 @@
         </div>
         
         <div class="form-group">
+          <label for="category">Category</label>
+          <select
+            id="category"
+            v-model="form.category"
+            class="form-control"
+            required
+          >
+            <option value="">카테고리를 선택하세요</option>
+            <option value="정치">정치</option>
+            <option value="연예">연예</option>
+            <option value="스포츠">스포츠</option>
+            <option value="유머">유머</option>
+            <option value="게임">게임</option>
+            <option value="쇼핑">쇼핑</option>
+            <option value="지식">지식</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
           <label for="content">Content</label>
           <textarea
             id="content"
@@ -62,7 +81,8 @@ export default {
     return {
       form: {
         title: '',
-        content: ''
+        content: '',
+        category: ''
       },
       selectedFiles: [],
       submitting: false
@@ -70,8 +90,8 @@ export default {
   },
   methods: {
     async submitPost() {
-      if (!this.form.title.trim() || !this.form.content.trim()) {
-        alert('Please fill in both title and content.')
+      if (!this.form.title.trim() || !this.form.content.trim() || !this.form.category) {
+        alert('Please fill in title, content, and select a category.')
         return
       }
       
@@ -80,7 +100,8 @@ export default {
         
         const postResponse = await postService.createPost({
           title: this.form.title.trim(),
-          content: this.form.content.trim()
+          content: this.form.content.trim(),
+          category: this.form.category
         })
         
         const postId = postResponse.data.id
@@ -108,7 +129,7 @@ export default {
     },
     
     goBack() {
-      if (this.form.title || this.form.content || this.selectedFiles.length > 0) {
+      if (this.form.title || this.form.content || this.form.category || this.selectedFiles.length > 0) {
         if (confirm('You have unsaved changes. Are you sure you want to leave?')) {
           this.$router.push('/')
         }
